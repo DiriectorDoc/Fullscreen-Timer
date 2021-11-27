@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Fullscreen Timer</title>
+		<style>
+			@media (prefers-color-scheme: dark) {
+				#container {
+					color: white;
+					background: black;
+				}
+			}
+
+			@media (prefers-color-scheme: light) {
+				#container {
+					color: black;
+					background: white;
+				}
+			}
+
+			* {
+				font-family: sans-serif;
+			}
+
+			body {
+				margin: 0;
+			}
+
+			#container {
+				position: relative;
+				height: 100vh;
+				width: 100vw;
+			}
+
+			#instructions {
+				line-height: 2em;
+				text-align: center;
+			}
+
+			#output {
+				font-family: monospace;
+			}
+		</style>
+		<script>
+			window.onload = () => {
+				let time, running = true, len = 0;
+					
+				const $id = (id) => document.getElementById(id),
+					container = $id("container"),
+					newElem = (tag, id) => (tag = document.createElement(tag), tag.id = id, tag),
+					
+					out = newElem("div", "output"),
+					loop = function(){
+						out.innerHTML = Date.now() - time;
+						if(out.innerHTML.length != len){
+							console.log("here")
+							len = out.innerHTML.length;
+							out.style.cssText = `font-size: ${Math.trunc(100 / len * 1.7)}vw`
+						}
+						if(running)requestAnimationFrame(loop)
+					},
+					docClick = (e) => {
+						e.preventDefault()
+						running = false
+					};
+
+				$id("start-button").addEventListener("click", function(e){
+					time = Date.now();
+					container.replaceChildren(out)
+					loop()
+					document.addEventListener("mousedown", docClick)
+				})
+			}
+		</script>
+	</head>
+	<body>
+		<div id="container">
+			<div id="instructions">
+				Press START to start the timer. To stop the timer, press your spacebar or click/tap anywhere.
+			</div>
+			<button id="start-button">START</button>
+		</div>
+	</body>
+</html>

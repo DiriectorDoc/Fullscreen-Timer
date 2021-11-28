@@ -6,9 +6,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content="Fullscreen timer" />
 		<meta name="author" content="Diriector_Doc" />
-		<meta name="last-updated" content="Sun, 28 Nov 2021 18:29 GMT" />
+		<meta name="last-updated" content="Sun, 28 Nov 2021 20:44 GMT" />
 		<meta name="keywords" content="diriector_doc, diriectordoc, diriector doc, timer" />
 		<title>Fullscreen Timer</title>
+		<link rel="icon" />
+		<link href="../global.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="../global.js"></script>
 		<style>
 			@media (prefers-color-scheme: light) {
 				#container {
@@ -79,13 +82,31 @@
 				display: flex;
 			}
 
+			.copyright {
+				bottom: 15px;
+				position: absolute;
+				right: 15px;
+			}
+
 			.cursor-pointer * {
 				cursor: pointer;
+			}
+
+			.github {
+				left: 15px;
+				position: absolute;
+				top: 15px;
 			}
 
 			.instructions {
 				line-height: 2em;
 				text-align: center;
+			}
+
+			.license {
+				bottom: 15px;
+				left: 15px;
+				position: absolute;
 			}
 
 			#container div {
@@ -111,6 +132,18 @@
 
 			#output {
 				font-family: monospace;
+				
+			}
+
+			#overlay {
+				height: 100vh;
+				pointer-events: none;
+				position: absolute;
+				width: 100%;
+			}
+
+			#overlay * {
+				pointer-events: all;
 			}
 
 			#start-button {
@@ -177,11 +210,12 @@
 						}
 					};
 				
-				out.setAttribute("dominant-baseline", "middle");
-				out.setAttribute("y", "50%");
+				out.setAttribute("dominant-baseline", "middle")
+				out.setAttribute("y", "50%")
 				svg.append(out)
 				$id("start-button").addEventListener("click", (e) => {
 					time = Date.now();
+					$id("overlay").remove()
 					container.replaceChildren(svg)
 					container.classList.add("centre-content", "cursor-pointer")
 					loop()
@@ -192,6 +226,11 @@
 		</script>
 	</head>
 	<body>
+		<div id="overlay">
+			<a class="github"></a>
+			<div class="license mit"></div>
+			<div class="copyright">v1.0 — D_Doc, 2021</div>
+		</div>
 		<div id="container">
 			<div class="instructions">
 				Press START to start the timer. To stop the timer, press your spacebar or click/tap anywhere.

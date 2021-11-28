@@ -28,8 +28,16 @@
 				margin: 0;
 			}
 
+			.centre-content {
+				display: flex;
+				align-items: center;
+			}
+
+			.cursor-pointer * {
+				cursor: pointer;
+			}
+
 			#container {
-				position: relative;
 				height: 100vh;
 				width: 100vw;
 			}
@@ -42,6 +50,11 @@
 			#output {
 				font-family: monospace;
 			}
+
+			#holder {
+				width: 100%;
+				height: 100%;
+			}
 		</style>
 		<script>
 			window.onload = () => {
@@ -50,27 +63,68 @@
 				const $id = (id) => document.getElementById(id),
 					container = $id("container"),
 					newElem = (tag, id) => (tag = document.createElement(tag), tag.id = id, tag),
-					
-					out = newElem("div", "output"),
-					loop = function(){
-						out.innerHTML = Date.now() - time;
-						if(out.innerHTML.length != len){
-							console.log("here")
-							len = out.innerHTML.length;
-							out.style.cssText = `font-size: ${Math.trunc(100 / len * 1.7)}vw`
+					newShape = (tag, id) => (tag = document.createElementNS("http://www.w3.org/2000/svg", tag), tag.id = id, tag),
+
+					printTime = (newTime) => {
+						let diff = newTime - time,
+							h = `${Math.trunc(diff / 36e5)}`,
+							m = `${Math.trunc(diff / 60000) - h*60}`,
+							s = `${Math.trunc(diff / 1000) - m*60 - h*3600}`,
+							ms = `${diff - s*1000 - m*60000 - h*36e5}`;
+						if(h > 0 && m.length == 1){
+							m = `0${m}`
 						}
+						if(s.length == 1){
+							s = `0${s}`
+						}
+						while(ms.length < 3){
+							ms = `0${ms}`
+						}
+						out.innerHTML = `${h}h ${m}m ${s}s ${ms}ms`;
+						if(out.innerHTML.length != len){
+							let bbox = svg.getBBox();
+							svg.setAttribute("viewBox", `0 0 ${bbox.width} ${bbox.height}`)
+							len = out.innerHTML.length
+						}
+					},
+					
+					svg = newShape("svg", "holder"),
+					out = newShape("text", "output"),
+					loop = function(){
+						printTime(Date.now())
 						if(running)requestAnimationFrame(loop)
 					},
 					docClick = (e) => {
+						let stop = Date.now();
 						e.preventDefault()
 						running = false
+						printTime(stop)
+						document.removeEventListener("mousedown", docClick)
+						document.removeEventListener("keydown", docSpace)
+						container.classList.remove("cursor-pointer")
+					},
+					docSpace = (e) => {
+						if(e.code == "Space"){
+							let stop = Date.now();
+							e.preventDefault()
+							running = false
+							printTime(stop)
+							document.removeEventListener("mousedown", docClick)
+							document.removeEventListener("keydown", docSpace)
+							container.classList.remove("cursor-pointer")
+						}
 					};
-
+				
+				out.setAttribute("dominant-baseline", "middle");
+				out.setAttribute("y", "50%");
+				svg.append(out)
 				$id("start-button").addEventListener("click", function(e){
 					time = Date.now();
-					container.replaceChildren(out)
+					container.replaceChildren(svg)
+					container.classList.add("centre-content", "cursor-pointer")
 					loop()
 					document.addEventListener("mousedown", docClick)
+					document.addEventListener("keydown", docSpace)
 				})
 			}
 		</script>

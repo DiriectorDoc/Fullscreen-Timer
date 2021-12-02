@@ -244,27 +244,21 @@
 							let h = `${Math.trunc(mils / 36e5)}`,
 								m = `${Math.trunc(mils / 60000) - h*60}`,
 								s = `${Math.trunc(mils / 1000) - m*60 - h*3600}`,
-								ms = `${mils - s*1000 - m*60000 - h*36e5}`;
+								ms = `00${mils - s*1000 - m*60000 - h*36e5}`.slice(-3);
 							if(h > 0 && m.length == 1){
 								m = `0${m}`
 							}
 							if(s.length == 1){
 								s = `0${s}`
 							}
-							while(ms.length < 3){
-								ms = `0${ms}`
-							}
 							return `${h}h ${m}m ${s}s ${ms}ms`
 						},
 						"2": (mils) => {
 							let m = `${Math.trunc(mils / 60000)}`,
 								s = `${Math.trunc(mils / 1000) - m*60}`,
-								ms = `${mils - s*1000 - m*60000}`;
+								ms = `00${mils - s*1000 - m*60000}`.slice(-3);
 							if(s.length == 1){
 								s = `0${s}`
-							}
-							while(ms.length < 3){
-								ms = `0${ms}`
 							}
 							return `${m}m ${s}s ${ms}ms`
 						},
@@ -364,9 +358,9 @@
 			<form id="radio">
 				<fieldset id="fieldset" disabled>
 					<input type="radio" id="hmmssmsmsms" name="timer-type" value="1" checked />
-					<label for="hmmssmsmsms">0h 00m 00s 000ms</label><br>
+					<label for="hmmssmsmsms">0h 00m 00s 000ms</label><br />
 					<input type="radio" id="mssmsmsms" name="timer-type" value="2" />
-					<label for="mssmsmsms">0m 00s 000ms</label><br>
+					<label for="mssmsmsms">0m 00s 000ms</label><br />
 					<input type="radio" id="smsmsms" name="timer-type" value="3" />
 					<label for="smsmsms">0s 000ms</label>
 				</fieldset>

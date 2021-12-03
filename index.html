@@ -19,17 +19,24 @@
 					color: #000;
 				}
 
+				#options {
+					background: white;
+					background: -moz-linear-gradient(0deg, white 90%, black 100%);
+					background: -webkit-linear-gradient(0deg, white 90%, black 100%);
+					background: linear-gradient(0deg, white 90%, black 100%);
+				}
+
 				#output {
 					fill: black;
 				}
 
-				#start-button {
+				#start-button, #save-button {
 					background: #FFF;
 					border: solid #000 2px;
 					color: #000;
 				}
 
-				#start-button:hover {
+				#start-button:hover, #save-button:hover {
 					background: #000;
 					color: #FFF;
 				}
@@ -39,10 +46,17 @@
 				.github {
 					fill: white
 				}
-
+				
 				#container {
 					background: #000;
 					color: #FFF;
+				}
+
+				#options {
+					background: black;
+					background: -moz-linear-gradient(0deg, black 90%, white 100%);
+					background: -webkit-linear-gradient(0deg, black 90%, white 100%);
+					background: linear-gradient(0deg, black 90%, white 100%);
 				}
 
 				#overlay div {
@@ -53,13 +67,13 @@
 					fill: white;
 				}
 
-				#start-button {
+				#start-button, #save-button {
 					background: #000;
 					border: solid #FFF 2px;
 					color: #FFF;
 				}
 
-				#start-button:hover {
+				#start-button:hover, #save-button:hover {
 					background: #FFF;
 					color: #000;
 				}
@@ -94,7 +108,13 @@
 			}
 
 			body {
+				font-size: 16px;
+				overflow: hidden;
 				margin: 0;
+			}
+
+			.button-holder {
+				margin: .5em 0;
 			}
 
 			.centre-content {
@@ -151,9 +171,41 @@
 				width: 100vw;
 			}
 
+			#fieldset {
+				border: unset;
+				display: unset;
+				margin-inline: unset;
+				min-inline-size: unset;
+				padding: unset;
+				padding-inline: unset;
+				padding-block: unset;
+			}
+
 			#holder {
 				height: 100%;
 				width: 100%;
+			}
+
+			#options {
+				height: 100vh;
+				position: relative;
+				transition: top 1s ease-in-out;
+				top: 0;
+				align-content: center;
+				align-items: center;
+				display: flex;
+				flex-direction: column;
+				flex-wrap: wrap;
+				justify-content: center;
+				width: 100vw;
+			}
+
+			#options-text {
+				color: #888;
+				cursor: pointer;
+				font-size: 1rem;
+				text-decoration: underline;
+				text-decoration-color: #888;
 			}
 
 			#output {
@@ -172,7 +224,7 @@
 				pointer-events: all;
 			}
 
-			#start-button {
+			#start-button, #save-button {
 				border-radius: .75rem;
 				font-size: 1.5rem;
 				padding: .75rem 1.25rem;
@@ -184,27 +236,43 @@
 			window.onload = () => {
 				let time, running = true, len = 0;
 					
-				const $id = (id) => document.getElementById(id),
+				const touch = "ontouchstart" in document,
+
+					formatText = {
+						id: 1,
+						"1": (mils) => {
+							let h = `${Math.trunc(mils / 36e5)}`,
+								m = `${Math.trunc(mils / 60000) - h*60}`,
+								s = `${Math.trunc(mils / 1000) - m*60 - h*3600}`,
+								ms = `00${mils - s*1000 - m*60000 - h*36e5}`.slice(-3);
+							if(h > 0 && m.length == 1){
+								m = `0${m}`
+							}
+							if(s.length == 1){
+								s = `0${s}`
+							}
+							return `${h}h ${m}m ${s}s ${ms}ms`
+						},
+						"2": (mils) => {
+							let m = `${Math.trunc(mils / 60000)}`,
+								s = `${Math.trunc(mils / 1000) - m*60}`,
+								ms = `00${mils - s*1000 - m*60000}`.slice(-3);
+							if(s.length == 1){
+								s = `0${s}`
+							}
+							return `${m}m ${s}s ${ms}ms`
+						},
+						"3": (mils) => `${Math.trunc(mils / 1000)}s ${`00${mils}`.slice(-3)}ms`,
+						format: (ms) => formatText[formatText.id](ms)
+					},
+				
+					$id = (id) => document.getElementById(id),
 					container = $id("container"),
 					newElem = (tag, id) => (tag = document.createElement(tag), tag.id = id, tag),
 					newShape = (tag, id) => (tag = document.createElementNS("http://www.w3.org/2000/svg", tag), tag.id = id, tag),
 
 					printTime = (newTime) => {
-						let diff = newTime - time,
-							h = `${Math.trunc(diff / 36e5)}`,
-							m = `${Math.trunc(diff / 60000) - h*60}`,
-							s = `${Math.trunc(diff / 1000) - m*60 - h*3600}`,
-							ms = `${diff - s*1000 - m*60000 - h*36e5}`;
-						if(h > 0 && m.length == 1){
-							m = `0${m}`
-						}
-						if(s.length == 1){
-							s = `0${s}`
-						}
-						while(ms.length < 3){
-							ms = `0${ms}`
-						}
-						out.innerHTML = `${h}h ${m}m ${s}s ${ms}ms`;
+						out.innerHTML = formatText.format(newTime - time);
 						if(out.innerHTML.length != len){
 							let bbox = svg.getBBox();
 							svg.setAttribute("viewBox", `0 0 ${bbox.width} ${bbox.height}`)
@@ -221,6 +289,7 @@
 					stop = (stop) => {
 						running = false
 						printTime(stop)
+						touch && document.removeEventListener("touchstart", docTouch)
 						document.removeEventListener("mousedown", docClick)
 						document.removeEventListener("keydown", docSpace)
 						container.classList.remove("cursor-pointer")
@@ -234,6 +303,10 @@
 							stop(Date.now())
 							e.preventDefault()
 						}
+					},
+					docTouch = (e) => {
+						stop(Date.now())
+						e.preventDefault()
 					};
 				
 				out.setAttribute("dominant-baseline", "middle")
@@ -242,11 +315,24 @@
 				$id("start-button").addEventListener("click", (e) => {
 					time = Date.now();
 					$id("overlay").remove()
+					$id("options").remove()
 					container.replaceChildren(svg)
 					container.classList.add("centre-content", "cursor-pointer")
 					loop()
+					touch && document.addEventListener("touchstart", docTouch)
 					document.addEventListener("mousedown", docClick)
 					document.addEventListener("keydown", docSpace)
+				})
+				$id("options-text").addEventListener("click", (e) => {
+					$id("start-button").setAttribute("disabled", true)
+					$id("fieldset").removeAttribute("disabled")
+					$id("options").style.top = "-100vh"
+				})
+				$id("save-button").addEventListener("click", (e) => {
+					$id("options").style.top = ""
+					formatText.id = new FormData($id("radio")).entries().next().value[1]
+					$id("fieldset").setAttribute("disabled", true)
+					$id("start-button").removeAttribute("disabled")
 				})
 			}
 		</script>
@@ -255,14 +341,32 @@
 		<div id="overlay">
 			<a class="github" href="https://github.com/DiriectorDoc/Fullscreen-Timer"></a>
 			<div class="license mit"></div>
-			<div class="copyright">v1.0 — D_Doc, 2021</div>
+			<div class="copyright">v1.1 — D_Doc, 2021</div>
 		</div>
 		<div id="container">
 			<div class="instructions">
 				Press START to start the timer. To stop the timer, press your spacebar or click/tap anywhere.
 			</div>
-			<div>
+			<div class="button-holder">
 				<button id="start-button">START</button>
+			</div>
+			<div>
+				<span id="options-text">Options</span>
+			</div>
+		</div>
+		<div id="options">
+			<form id="radio">
+				<fieldset id="fieldset" disabled>
+					<input type="radio" id="hmmssmsmsms" name="timer-type" value="1" checked />
+					<label for="hmmssmsmsms">0h 00m 00s 000ms</label><br />
+					<input type="radio" id="mssmsmsms" name="timer-type" value="2" />
+					<label for="mssmsmsms">0m 00s 000ms</label><br />
+					<input type="radio" id="smsmsms" name="timer-type" value="3" />
+					<label for="smsmsms">0s 000ms</label>
+				</fieldset>
+			</form>
+			<div class="button-holder">
+				<button id="save-button">SAVE</button>
 			</div>
 		</div>
 	</body>

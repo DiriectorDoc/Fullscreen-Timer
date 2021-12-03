@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content="Fullscreen timer" />
 		<meta name="author" content="Diriector_Doc" />
-		<meta name="last-updated" content="Sun, 28 Nov 2021 20:49 GMT" />
+		<meta name="last-updated" content="Fri, 03 Dec 2021 03:14 GMT" />
 		<meta name="keywords" content="diriector_doc, diriectordoc, diriector doc, timer" />
 		<title>Fullscreen Timer</title>
 		<link rel="icon" />
@@ -18,30 +18,25 @@
 					background: #FFF;
 					color: #000;
 				}
-
 				#options {
 					background: white;
 					background: -moz-linear-gradient(0deg, white 90%, black 100%);
 					background: -webkit-linear-gradient(0deg, white 90%, black 100%);
 					background: linear-gradient(0deg, white 90%, black 100%);
 				}
-
 				#output {
 					fill: black;
 				}
-
 				#start-button, #save-button {
 					background: #FFF;
 					border: solid #000 2px;
 					color: #000;
 				}
-
 				#start-button:hover, #save-button:hover {
 					background: #000;
 					color: #FFF;
 				}
 			}
-
 			@media (prefers-color-scheme: dark) {
 				.github {
 					fill: white
@@ -51,115 +46,94 @@
 					background: #000;
 					color: #FFF;
 				}
-
 				#options {
 					background: black;
 					background: -moz-linear-gradient(0deg, black 90%, white 100%);
 					background: -webkit-linear-gradient(0deg, black 90%, white 100%);
 					background: linear-gradient(0deg, black 90%, white 100%);
 				}
-
-				#overlay div {
+				label, #overlay div {
 					color: white
 				}
-
 				#output {
 					fill: white;
 				}
-
 				#start-button, #save-button {
 					background: #000;
 					border: solid #FFF 2px;
 					color: #FFF;
 				}
-
 				#start-button:hover, #save-button:hover {
 					background: #FFF;
 					color: #000;
 				}
 			}
-
 			@media only screen and (min-width: 400px) {
 				.instructions {
 					padding: 0 6rem
 				}
 			}
-
 			@media only screen and (max-width: 400px) {
 				.instructions {
 					padding: 0 3rem
 				}
 			}
-
 			@media only screen and (min-width: 296px) {
 				.copyright {
 					bottom: 15px;
 				}
 			}
-
 			@media only screen and (max-width: 296px) {
 				.copyright {
 					bottom: 2rem;
 				}
 			}
-
 			* {
 				font-family: sans-serif;
 			}
-
 			body {
 				font-size: 16px;
 				overflow: hidden;
 				margin: 0;
 			}
-
 			.button-holder {
 				margin: .5em 0;
 			}
-
 			.centre-content {
 				align-items: center;
 				display: flex;
 			}
-
 			.copyright {
 				max-width: 50%;
 				position: absolute;
 				right: 15px;
 				direction: rtl;
 			}
-
 			.cursor-pointer * {
 				cursor: pointer;
 			}
-
 			.github {
 				left: 15px;
 				position: absolute;
 				top: 15px;
 			}
-
 			.instructions {
 				line-height: 2em;
 				text-align: center;
 			}
-
 			.license {
 				bottom: 15px;
 				left: 15px;
 				max-width: 50%;
 				position: absolute;
 			}
-
 			.license span {
 				white-space: nowrap;
 			}
-
 			#container div {
 				flex: 0 1 auto;
 				font-size: 1.5rem;
 			}
-
 			#container {
 				align-content: center;
 				align-items: center;
@@ -170,7 +144,6 @@
 				justify-content: center;
 				width: 100vw;
 			}
-
 			#fieldset {
 				border: unset;
 				display: unset;
@@ -180,12 +153,10 @@
 				padding-inline: unset;
 				padding-block: unset;
 			}
-
 			#holder {
 				height: 100%;
 				width: 100%;
 			}
-
 			#options {
 				height: 100vh;
 				position: relative;
@@ -199,7 +170,6 @@
 				justify-content: center;
 				width: 100vw;
 			}
-
 			#options-text {
 				color: #888;
 				cursor: pointer;
@@ -207,23 +177,19 @@
 				text-decoration: underline;
 				text-decoration-color: #888;
 			}
-
 			#output {
 				font-family: monospace;
 				
 			}
-
 			#overlay {
 				height: 100vh;
 				pointer-events: none;
 				position: absolute;
 				width: 100%;
 			}
-
 			#overlay * {
 				pointer-events: all;
 			}
-
 			#start-button, #save-button {
 				border-radius: .75rem;
 				font-size: 1.5rem;
@@ -237,7 +203,6 @@
 				let time, running = true, len = 0;
 					
 				const touch = "ontouchstart" in document,
-
 					formatText = {
 						id: 1,
 						"1": (mils) => {
@@ -270,7 +235,6 @@
 					container = $id("container"),
 					newElem = (tag, id) => (tag = document.createElement(tag), tag.id = id, tag),
 					newShape = (tag, id) => (tag = document.createElementNS("http://www.w3.org/2000/svg", tag), tag.id = id, tag),
-
 					printTime = (newTime) => {
 						out.innerHTML = formatText.format(newTime - time);
 						if(out.innerHTML.length != len){

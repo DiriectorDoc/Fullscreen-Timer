@@ -1,6 +1,6 @@
 # Changelog
 ## v1.1 - Update A
-<i title="2021-12-03T03:06:54Z"><small>Dec 6, '21</small></i>
+<i title="2021-12-07T00:47:38Z"><small>Dec 6, '21</small></i>
 * Added a changelog
 * Added a link to the changelog, located by clicking the version number
 * Minified CSS

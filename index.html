@@ -6,198 +6,13 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content="Fullscreen timer" />
 		<meta name="author" content="Diriector_Doc" />
-		<meta name="last-updated" content="Fri, 03 Dec 2021 03:14 GMT" />
+		<meta name="last-updated" content="Tue, 07 Dec 2021 00:46 GMT" />
 		<meta name="keywords" content="diriector_doc, diriectordoc, diriector doc, timer" />
 		<title>Fullscreen Timer</title>
 		<link rel="icon" />
 		<link href="../global.css" rel="stylesheet" type="text/css">
 		<script type="text/javascript" src="../global.js"></script>
-		<style>
-			@media (prefers-color-scheme: light) {
-				#container {
-					background: #FFF;
-					color: #000;
-				}
-				#options {
-					background: white;
-					background: -moz-linear-gradient(0deg, white 90%, black 100%);
-					background: -webkit-linear-gradient(0deg, white 90%, black 100%);
-					background: linear-gradient(0deg, white 90%, black 100%);
-				}
-				#output {
-					fill: black;
-				}
-				#start-button, #save-button {
-					background: #FFF;
-					border: solid #000 2px;
-					color: #000;
-				}
-				#start-button:hover, #save-button:hover {
-					background: #000;
-					color: #FFF;
-				}
-			}
-			@media (prefers-color-scheme: dark) {
-				.github {
-					fill: white
-				}
-				
-				#container {
-					background: #000;
-					color: #FFF;
-				}
-				#options {
-					background: black;
-					background: -moz-linear-gradient(0deg, black 90%, white 100%);
-					background: -webkit-linear-gradient(0deg, black 90%, white 100%);
-					background: linear-gradient(0deg, black 90%, white 100%);
-				}
-				label, #overlay div {
-					color: white
-				}
-				#output {
-					fill: white;
-				}
-				#start-button, #save-button {
-					background: #000;
-					border: solid #FFF 2px;
-					color: #FFF;
-				}
-				#start-button:hover, #save-button:hover {
-					background: #FFF;
-					color: #000;
-				}
-			}
-			@media only screen and (min-width: 400px) {
-				.instructions {
-					padding: 0 6rem
-				}
-			}
-			@media only screen and (max-width: 400px) {
-				.instructions {
-					padding: 0 3rem
-				}
-			}
-			@media only screen and (min-width: 296px) {
-				.copyright {
-					bottom: 15px;
-				}
-			}
-			@media only screen and (max-width: 296px) {
-				.copyright {
-					bottom: 2rem;
-				}
-			}
-			* {
-				font-family: sans-serif;
-			}
-			body {
-				font-size: 16px;
-				overflow: hidden;
-				margin: 0;
-			}
-			.button-holder {
-				margin: .5em 0;
-			}
-			.centre-content {
-				align-items: center;
-				display: flex;
-			}
-			.copyright {
-				max-width: 50%;
-				position: absolute;
-				right: 15px;
-				direction: rtl;
-			}
-			.cursor-pointer * {
-				cursor: pointer;
-			}
-			.github {
-				left: 15px;
-				position: absolute;
-				top: 15px;
-			}
-			.instructions {
-				line-height: 2em;
-				text-align: center;
-			}
-			.license {
-				bottom: 15px;
-				left: 15px;
-				max-width: 50%;
-				position: absolute;
-			}
-			.license span {
-				white-space: nowrap;
-			}
-			#container div {
-				flex: 0 1 auto;
-				font-size: 1.5rem;
-			}
-			#container {
-				align-content: center;
-				align-items: center;
-				display: flex;
-				flex-direction: column;
-				flex-wrap: wrap;
-				height: 100vh;
-				justify-content: center;
-				width: 100vw;
-			}
-			#fieldset {
-				border: unset;
-				display: unset;
-				margin-inline: unset;
-				min-inline-size: unset;
-				padding: unset;
-				padding-inline: unset;
-				padding-block: unset;
-			}
-			#holder {
-				height: 100%;
-				width: 100%;
-			}
-			#options {
-				height: 100vh;
-				position: relative;
-				transition: top 1s ease-in-out;
-				top: 0;
-				align-content: center;
-				align-items: center;
-				display: flex;
-				flex-direction: column;
-				flex-wrap: wrap;
-				justify-content: center;
-				width: 100vw;
-			}
-			#options-text {
-				color: #888;
-				cursor: pointer;
-				font-size: 1rem;
-				text-decoration: underline;
-				text-decoration-color: #888;
-			}
-			#output {
-				font-family: monospace;
-				
-			}
-			#overlay {
-				height: 100vh;
-				pointer-events: none;
-				position: absolute;
-				width: 100%;
-			}
-			#overlay * {
-				pointer-events: all;
-			}
-			#start-button, #save-button {
-				border-radius: .75rem;
-				font-size: 1.5rem;
-				padding: .75rem 1.25rem;
-				text-decoration: none;
-				transition: 100ms ease-in;
-			}
-		</style>
+		<style>@media (prefers-color-scheme: light){#container{background:#FFF;color:#000}#options{background:#fff;background:-moz-linear-gradient(0deg,white 90%,black 100%);background:-webkit-linear-gradient(0deg,white 90%,black 100%);background:linear-gradient(0deg,white 90%,black 100%)}#output{fill:#000}#start-button,#save-button{background:#FFF;border:solid #000 2px;color:#000}#start-button:hover,#save-button:hover{background:#000;color:#FFF}}@media (prefers-color-scheme: dark){.github{fill:#fff}#container{background:#000;color:#FFF}#options{background:#000;background:-moz-linear-gradient(0deg,black 90%,white 100%);background:-webkit-linear-gradient(0deg,black 90%,white 100%);background:linear-gradient(0deg,black 90%,white 100%)}label,#overlay div{color:#fff}#output{fill:#fff}#start-button,#save-button{background:#000;border:solid #FFF 2px;color:#FFF}#start-button:hover,#save-button:hover{background:#FFF;color:#000}}@media only screen and (min-width: 400px){.instructions{padding:0 6rem}}@media only screen and (max-width: 400px){.instructions{padding:0 3rem}}@media only screen and (min-width: 296px){.copyright{bottom:15px}}@media only screen and (max-width: 296px){.copyright{bottom:2rem}}*{font-family:sans-serif}body{font-size:16px;overflow:hidden;margin:0}.button-holder{margin:.5em 0}.centre-content{align-items:center;display:flex}.copyright{max-width:50%;position:absolute;right:15px;direction:rtl}.cursor-pointer *{cursor:pointer}.github{left:15px;position:absolute;top:15px}.instructions{line-height:2em;text-align:center}.license{bottom:15px;left:15px;max-width:50%;position:absolute}.license span{white-space:nowrap}#container div{flex:0 1 auto;font-size:1.5rem}#container{align-content:center;align-items:center;display:flex;flex-direction:column;flex-wrap:wrap;height:100vh;justify-content:center;width:100vw}#fieldset{border:unset;display:unset;margin-inline:unset;min-inline-size:unset;padding:unset;padding-inline:unset;padding-block:unset}#holder{height:100%;width:100%}#options{height:100vh;position:relative;transition:top 1s ease-in-out;top:0;align-content:center;align-items:center;display:flex;flex-direction:column;flex-wrap:wrap;justify-content:center;width:100vw}#options-text{color:#888;cursor:pointer;font-size:1rem;text-decoration:underline;text-decoration-color:#888}#output{font-family:monospace}#overlay{height:100vh;pointer-events:none;position:absolute;width:100%}#overlay *{pointer-events:all}#start-button,#save-button{border-radius:.75rem;font-size:1.5rem;padding:.75rem 1.25rem;text-decoration:none;transition:100ms ease-in}</style>
 		<script>
 			window.onload = () => {
 				let time, running = true, len = 0;
@@ -205,11 +20,11 @@
 				const touch = "ontouchstart" in document,
 					formatText = {
 						id: 1,
-						"1": (mils) => {
+						1: (mils) => {
 							let h = `${Math.trunc(mils / 36e5)}`,
 								m = `${Math.trunc(mils / 60000) - h*60}`,
 								s = `${Math.trunc(mils / 1000) - m*60 - h*3600}`,
-								ms = `00${mils - s*1000 - m*60000 - h*36e5}`.slice(-3);
+								ms = `${mils + 1000}`.slice(-3);
 							if(h > 0 && m.length == 1){
 								m = `0${m}`
 							}
@@ -218,16 +33,16 @@
 							}
 							return `${h}h ${m}m ${s}s ${ms}ms`
 						},
-						"2": (mils) => {
+						2: (mils) => {
 							let m = `${Math.trunc(mils / 60000)}`,
 								s = `${Math.trunc(mils / 1000) - m*60}`,
-								ms = `00${mils - s*1000 - m*60000}`.slice(-3);
+								ms = `${mils + 1000}`.slice(-3);
 							if(s.length == 1){
 								s = `0${s}`
 							}
 							return `${m}m ${s}s ${ms}ms`
 						},
-						"3": (mils) => `${Math.trunc(mils / 1000)}s ${`00${mils}`.slice(-3)}ms`,
+						3: (mils) => `${Math.trunc(mils / 1000)}s ${`${mils + 1000}`.slice(-3)}ms`,
 						format: (ms) => formatText[formatText.id](ms)
 					},
 				
@@ -305,7 +120,7 @@
 		<div id="overlay">
 			<a class="github" href="https://github.com/DiriectorDoc/Fullscreen-Timer"></a>
 			<div class="license mit"></div>
-			<div class="copyright">v1.1 — D_Doc, 2021</div>
+			<div class="copyright"><a href="changelog.html">v1.1</a> — D_Doc, 2021</div>
 		</div>
 		<div id="container">
 			<div class="instructions">

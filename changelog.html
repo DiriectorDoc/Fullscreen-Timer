@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Changelog</title>
+        <script>
+            fetch("changelog.md")
+            .then(e => e.body.getReader().read())
+            .then(({value: arr, done: done}) => [...arr].map(e => String.fromCharCode(e)).join(""))
+            .then(body => {
+                let dates = body.match(/<i title="\d{4}-[0-1][0-3]-[0-3]\d{1}T[0-2]\d{1}:[0-5]\d{1}:[0-5]\d{1}Z.+/g),
+                    list = (src) => src.replace(/^( *)(?:[*\-+]|((\d+)|([a-z])|[A-Z])[.)]) +([^]*?)(?=(\n|$){2})$/gm, (all, ind, ol, num, low, content) => {
+                        let entry = `<li>${content.split(
+                        RegExp(`\n ?${ind}(?:(?:\\d+|[a-zA-Z])[.)]|[*\\-+]) +`, "g")).map(list).join("</li><li>")}</li>`;
+                        return `\n ${ol ? `<ol start="${num ? ol + '">' : `${parseInt(ol, 36) - 9}" style="list-style-type:${low ? "low" : "upp"}er-alpha">`}${entry}</ol>` : `<ul>${entry}</ul>`}`;
+                    });
+                body = body
+                    .replace(/## (.+)/gm, "<h2>$1</h2>")
+                    .replace(/# (.+)$/gm, "<h1>$1</h1>")
+                    .replace(/(<\/h\d>)\n/g, "$1")
+                body = list(body).replace(/<\/(ol|ul)>\n\n<\1>/g, "")
+                for(let e of dates){
+                    let local = e.match(/\d{4}-[0-1][0-3]-[0-3]\d{1}T[0-2]\d{1}:[0-5]\d{1}:[0-5]\d{1}Z/g)[0];
+                    body = body
+                    .replace(e, `<i class="date">${new Date(local).toLocaleString()}</i>`)
+                }
+                document.body.innerHTML = body
+            })
+        </script>
+    </head>
+</html>

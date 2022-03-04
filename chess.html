@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="Fullscreen timer" />
+		<meta name="author" content="Diriector_Doc" />
+		<meta name="last-updated" content="Tue, 07 Dec 2021 00:46 GMT" />
+		<meta name="keywords" content="diriector_doc, diriectordoc, diriector doc, timer" />
+		<title>Fullscreen Chess Timer</title>
+		<link rel="icon" />
+		<!--link href="../global.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="../global.js"></script-->
+		<style>#output,#output2{font-family:monospace}</style>
+		<script>
+			window.onload = () => {
+				let running = true, timestamps = [0, 0], which = 0, startTimes;
+					
+				const touch = "ontouchstart" in document,
+					formatText = {
+						id: 2,
+						1: (mils) => {
+							let h = `${Math.trunc(mils / 36e5)}`,
+								m = `${Math.trunc(mils / 60000) - h*60}`,
+								s = `${Math.trunc(mils / 1000) - m*60 - h*3600}`,
+								ms = `${mils + 1000}`.slice(-3);
+							if(h > 0 && m.length == 1){
+								m = `0${m}`
+							}
+							if(s.length == 1){
+								s = `0${s}`
+							}
+							return `${h}h ${m}m ${s}s ${ms}ms`
+						},
+						2: (mils) => {
+							let m = `${Math.trunc(mils / 60000)}`,
+								s = `${Math.trunc(mils / 1000) - m*60}`,
+								ms = `${mils + 1000}`.slice(-3);
+							if(s.length == 1){
+								s = `0${s}`
+							}
+							return `${m}m ${s}s ${ms}ms`
+						},
+						3: (mils) => `${Math.trunc(mils / 1000)}s ${`${mils + 1000}`.slice(-3)}ms`,
+						format: (ms) => formatText[formatText.id](ms)
+					},
+				
+					$id = (id) => document.getElementById(id),
+					container = $id("container"),
+					newElem = (tag, id) => (tag = document.createElement(tag), tag.id = id, tag),
+					newShape = (tag, id) => (tag = document.createElementNS("http://www.w3.org/2000/svg", tag), tag.id = id, tag),
+
+					svg = newShape("svg", "holder"),
+					svg2 = newShape("svg", "holder2"),
+					out = newShape("text", "output"),
+					out2 = newShape("text", "output2"),
+
+                    timeDisplays = [out, out2],
+					
+					printTime = (newTimes) => {
+						timeDisplays[1].innerHTML = formatText.format(600_000 - timestamps[1])
+						timeDisplays[0].innerHTML = formatText.format(600_000 - timestamps[0])
+					},
+					
+					loop = () => {
+						printTime()
+                        timestamps[which] = Date.now() - startTimes - timestamps[which ^ 1];
+						if(running)requestAnimationFrame(loop)
+					};
+
+				container.appendChild(svg)
+				container.appendChild(svg2)
+				
+				function LR(){
+					svg.setAttribute("style", "height: min(100vw, 100vh); width: min(100vw, 100vh)")
+					svg2.setAttribute("style", "height: min(100vw, 100vh); width: min(100vw, 100vh)")
+					out.innerHTML = out2.innerHTML = "0m 00s 000ms";
+					out.setAttribute("dominant-baseline", "top")
+					out2.setAttribute("dominant-baseline", "top")
+					svg.append(out)
+					svg2.append(out2)
+					let bbox = svg.getBBox(),
+						max = Math.max(bbox.height, bbox.width),
+						bbox2 = svg2.getBBox(),
+						max2 = Math.max(bbox2.height, bbox2.width);
+					svg.setAttribute("viewBox", `0 0 ${max} ${max}`)
+					svg2.setAttribute("viewBox", `0 0 ${max2} ${max2}`)
+					out.setAttribute("style", "transform: matrix(0,1,-1,0,1,0)")
+					out2.setAttribute("style", "transform: rotate(.75turn);")
+					out2.setAttribute("x", -max2)
+					out2.setAttribute("y", max2-1)
+				}
+				$id("start-button").addEventListener("mouseup", (e) => {
+					startTimes = Date.now()
+                    loop()
+                    container.addEventListener("mousedown", (e) => {
+                        which ^= 1
+                    })
+				})
+			}
+		</script>
+	</head>
+	<body>
+		<div id="container">
+			<div id="time-1">
+				
+			</div>
+			<div id="time-2">
+				
+			</div>
+            <button id="start-button">START</button>
+		</div>
+	</body>
+</html>

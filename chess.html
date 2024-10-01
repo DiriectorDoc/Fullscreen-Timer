@@ -12,15 +12,43 @@
 		<link rel="icon" />
 		<!--link href="../global.css" rel="stylesheet" type="text/css">
 		<script type="text/javascript" src="../global.js"></script-->
-		<style>#output,#output2{font-family:monospace}</style>
+		<style>
+			#output, #output2 {
+				font-family: monospace
+			}
+
+			.times {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				grid-template-rows: 1fr;
+				gap: 0px 10%;
+				grid-auto-flow: row;
+				grid-template-areas:
+					"time-1 time-2";
+			}
+
+			.time-1 {
+				grid-area: time-1;
+			}
+
+			.time-2 {
+				grid-area: time-2;
+			}
+		</style>
 		<script>
 			window.onload = () => {
-				let running = true, timestamps = [0, 0], which = 0, startTimes;
+				let running = true, timestamps = [0, 0], delays = [2000, 2000], which = 0, startTimes;
+
+				let delay = 2000; // 2-second delay, in milliseconds
+				let delayStartTime = 0; // Timestamp when delay starts
+				let isDelaying = true; // Tracks whether the delay is active
+
+				globalThis.stopClock = () => running = false;
 					
 				const touch = "ontouchstart" in document,
 					formatText = {
-						id: 2,
-						1: (mils) => {
+						id: "m:ss.mms+s.mms",//"m:ss.mms",
+						"h:mm:ss.mms": (mils) => {
 							let h = `${Math.trunc(mils / 36e5)}`,
 								m = `${Math.trunc(mils / 60000) - h*60}`,
 								s = `${Math.trunc(mils / 1000) - m*60 - h*3600}`,
@@ -31,85 +59,145 @@
 							if(s.length == 1){
 								s = `0${s}`
 							}
-							return `${h}h ${m}m ${s}s ${ms}ms`
+							return `${h}:${m}:${s}<tspan style="font-size:0.5em">.${ms}</tspan>`
 						},
-						2: (mils) => {
+						"m:ss.mms": (mils) => {
 							let m = `${Math.trunc(mils / 60000)}`,
 								s = `${Math.trunc(mils / 1000) - m*60}`,
 								ms = `${mils + 1000}`.slice(-3);
 							if(s.length == 1){
 								s = `0${s}`
 							}
-							return `${m}m ${s}s ${ms}ms`
+							return `${m}:${s}<tspan style="font-size:0.5em">.${ms}</tspan>`
 						},
-						3: (mils) => `${Math.trunc(mils / 1000)}s ${`${mils + 1000}`.slice(-3)}ms`,
-						format: (ms) => formatText[formatText.id](ms)
+						"h?:#m:ss.mms": (mils) => formatText[mils >= 36e5 ? "h:mm:ss.mms" : "m:ss.mms"](mils),
+						"s.mms": (mils) => `${Math.trunc(mils / 1000)}<tspan style="font-size:0.5em">.${`${mils + 1000}`.slice(-3)}</tspan>`,
+						"m:ss.mms+s.mms": (mils, del) => `<tspan x="0">${Array(`${Math.trunc(mils / 60000)}`.length).fill("&nbsp;").join("")}&nbsp;&nbsp;${formatText["s.mms"](del)}</tspan><tspan x="0" dy="1em">${formatText["m:ss.mms"](mils)}</tspan>`,
+						"m:ss": (mils) => {
+							let secs = Math.ceil(mils/1000),
+								m = `${Math.trunc(secs / 60)}`,
+								s = `${secs - m*60}`;
+							if(s.length == 1){
+								s = `0${s}`
+							}
+							return `${m}:${s}`
+						},
+
+						format: (ms, de) => formatText[formatText.id](ms, de)
 					},
 				
 					$id = (id) => document.getElementById(id),
 					container = $id("container"),
 					newElem = (tag, id) => (tag = document.createElement(tag), tag.id = id, tag),
 					newShape = (tag, id) => (tag = document.createElementNS("http://www.w3.org/2000/svg", tag), tag.id = id, tag),
+				
+					time_1 = container.querySelector(".time-1"),
+					time_2 = container.querySelector(".time-2"),
 
 					svg = newShape("svg", "holder"),
 					svg2 = newShape("svg", "holder2"),
 					out = newShape("text", "output"),
 					out2 = newShape("text", "output2"),
 
-                    timeDisplays = [out, out2],
+					timeDisplays = [out, out2],
 					
 					printTime = (newTimes) => {
-						timeDisplays[1].innerHTML = formatText.format(600_000 - timestamps[1])
-						timeDisplays[0].innerHTML = formatText.format(600_000 - timestamps[0])
+						timeDisplays[1].innerHTML = formatText.format(600_000 - timestamps[1], delays[1])
+						timeDisplays[0].innerHTML = formatText.format(600_000 - timestamps[0], delays[0])
 					},
 					
 					loop = () => {
+						if (isDelaying) {
+							// Check how much delay time has passed
+							const elapsedDelay = Date.now() - delayStartTime;
+							delays[which] = delay - elapsedDelay
+							if (elapsedDelay >= delay) {
+								// Delay finished, start player's clock
+								isDelaying = false;
+								delays[which] = 0
+							}
+						} else {
+							// Regular countdown process if not delaying
+							timestamps[which] = Date.now() - startTimes - timestamps[which ^ 1];
+						}
 						printTime()
-                        timestamps[which] = Date.now() - startTimes - timestamps[which ^ 1];
+						let bbox = svg.getBBox(),
+							max = Math.max(bbox.height, bbox.width),
+							min = Math.min(bbox.height, bbox.width),
+							bbox2 = svg2.getBBox(),
+							max2 = Math.max(bbox2.height, bbox2.width),
+							min2 = Math.min(bbox2.height, bbox2.width);
+						svg.setAttribute("viewBox", `0 0 ${max} ${max}`)
+						svg2.setAttribute("viewBox", `0 0 ${max2} ${max2}`)
+						out.setAttribute("y", max/2)
+						out2.setAttribute("y", max2/2)
 						if(running)requestAnimationFrame(loop)
+					},
+					switchPlayer = () => {
+						startTimes += delay - delays[which];
+						which ^= 1;  // Switch player
+						isDelaying = true; // Set delay flag to true
+						delayStartTime = Date.now(); // Record when the delay starts
+						delays = [delay, delay];
+					},
+					docClick = (e) => {
+						switchPlayer()
+						e.preventDefault()
+					},
+					docSpace = (e) => {
+						if (e.repeat) return;
+						if(e.code == "Space"){
+							switchPlayer()
+							e.preventDefault()
+						}
+					},
+					docTouch = (e) => {
+						switchPlayer()
+						e.preventDefault()
 					};
 
-				container.appendChild(svg)
-				container.appendChild(svg2)
+				time_1.appendChild(svg)
+				time_2.appendChild(svg2)
 				
 				function LR(){
-					svg.setAttribute("style", "height: min(100vw, 100vh); width: min(100vw, 100vh)")
-					svg2.setAttribute("style", "height: min(100vw, 100vh); width: min(100vw, 100vh)")
+					// svg.setAttribute("style", "height: min(100vw, 100vh); width: min(100vw, 100vh)")
+					// svg2.setAttribute("style", "height: min(100vw, 100vh); width: min(100vw, 100vh)")
 					out.innerHTML = out2.innerHTML = "0m 00s 000ms";
-					out.setAttribute("dominant-baseline", "top")
-					out2.setAttribute("dominant-baseline", "top")
+					// out.setAttribute("dominant-baseline", "top")
+					// out2.setAttribute("dominant-baseline", "top")
 					svg.append(out)
 					svg2.append(out2)
+					out.setAttribute("style", "transform-origin: center; transform: rotate(90deg);")
+					out2.setAttribute("style", "transform-origin: center; transform: rotate(270deg);")
 					let bbox = svg.getBBox(),
 						max = Math.max(bbox.height, bbox.width),
+						min = Math.min(bbox.height, bbox.width),
 						bbox2 = svg2.getBBox(),
-						max2 = Math.max(bbox2.height, bbox2.width);
+						max2 = Math.max(bbox2.height, bbox2.width),
+						min2 = Math.min(bbox2.height, bbox2.width);
 					svg.setAttribute("viewBox", `0 0 ${max} ${max}`)
 					svg2.setAttribute("viewBox", `0 0 ${max2} ${max2}`)
-					out.setAttribute("style", "transform: matrix(0,1,-1,0,1,0)")
-					out2.setAttribute("style", "transform: rotate(.75turn);")
-					out2.setAttribute("x", -max2)
-					out2.setAttribute("y", max2-1)
+					out.setAttribute("y", max/2)
+					out2.setAttribute("y", max2/2)
 				}
+				LR()
 				$id("start-button").addEventListener("mouseup", (e) => {
-					startTimes = Date.now()
-                    loop()
-                    container.addEventListener("mousedown", (e) => {
-                        which ^= 1
-                    })
+					startTimes = (delayStartTime = Date.now()) + delay
+					loop()
+					container.addEventListener("mousedown", docClick)
+					container.addEventListener("keydown", docSpace)
+					touch && container.addEventListener("touchstart", docTouch)
 				})
 			}
 		</script>
 	</head>
 	<body>
 		<div id="container">
-			<div id="time-1">
-				
+			<div class="times">
+				<div class="time-1"></div>
+				<div class="time-2"></div>
 			</div>
-			<div id="time-2">
-				
-			</div>
-            <button id="start-button">START</button>
+			<button id="start-button">START</button>
 		</div>
 	</body>
 </html>

@@ -13,35 +13,106 @@
 		<!--link href="../global.css" rel="stylesheet" type="text/css">
 		<script type="text/javascript" src="../global.js"></script-->
 		<style>
+			body {
+				margin: 0;
+				background: linear-gradient(
+					90deg,
+					rgba(255, 255, 255, 1) 0%,
+					rgba(255, 255, 255, 1) 50%,
+					rgba(0, 0, 0, 1) 50%,
+					rgba(0, 0, 0, 1) 100%
+				);
+				height: 100vh;
+			}
+
+			#container {
+				padding: 0 15px;
+				height: 100%;
+				max-width: 100vw;
+			}
+
 			#output, #output2 {
 				font-family: monospace
 			}
 
 			.times {
 				display: grid;
-				grid-template-columns: 1fr 1fr;
-				grid-template-rows: 1fr;
-				gap: 0px 10%;
+				grid-template-columns: 10fr 3fr 10fr;
+				grid-template-rows: 10fr;
+				gap: 0px 10px;
 				grid-auto-flow: row;
-				grid-template-areas:
-					"time-1 time-2";
+				grid-template-areas: "time-1 middle time-2";
+				aspect-ratio: 23 / 10;
+				max-height: 100%;
+				max-width: 100%;
+				margin: auto;
 			}
 
 			.time-1 {
 				grid-area: time-1;
+				aspect-ratio: 1;
+			}
+
+			.middle {
+				grid-area: middle;
+				background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(128,128,128,1) 20%, rgba(128,128,128,1) 80%, rgba(0,0,0,1) 100%);
 			}
 
 			.time-2 {
 				grid-area: time-2;
+				aspect-ratio: 1;
+			}
+
+			.black {
+				fill: white;
+			}
+
+			.white {
+				fill : black;
 			}
 		</style>
 		<script>
+			class LayeredAudio {
+
+				url;
+				samples = [];
+
+				constructor(src){
+					fetch(src)
+						.then(response => response.blob())
+						.then((blob) => {
+							this.url = URL.createObjectURL(blob);
+							this.samples[0] = new Audio(this.url);
+						});
+				}
+
+				play(){
+					if(this.url && !this.samples.find(e => e.paused)?.play()){
+						this.samples.push(new Audio(this.url))
+						this.samples[this.samples.length - 1].play()
+					}
+				}
+
+				stopAll(){
+					this.samples.forEach(e => {
+						e.pause()
+						e.currentTime = 0;
+					})
+				}
+			}
 			window.onload = () => {
+				const tripleBeep = new Audio("./assets/triple-beep.ogg"),
+					boop = new LayeredAudio("./assets/boop.ogg");
+
 				let running = true, timestamps = [0, 0], delays = [2000, 2000], which = 0, startTimes;
 
 				let delay = 2000; // 2-second delay, in milliseconds
 				let delayStartTime = 0; // Timestamp when delay starts
 				let isDelaying = true; // Tracks whether the delay is active
+
+				let increment = 2000;
+
+				let control = 600_000;
 
 				globalThis.stopClock = () => running = false;
 					
@@ -96,12 +167,14 @@
 
 					svg = newShape("svg", "holder"),
 					svg2 = newShape("svg", "holder2"),
+					g = newShape("g", "group"),
+					g2 = newShape("g", "group2"),
 					out = newShape("text", "output"),
 					out2 = newShape("text", "output2"),
 
 					timeDisplays = [out, out2],
 					
-					printTime = (newTimes) => {
+					printTime = () => {
 						timeDisplays[1].innerHTML = formatText.format(600_000 - timestamps[1], delays[1])
 						timeDisplays[0].innerHTML = formatText.format(600_000 - timestamps[0], delays[0])
 					},
@@ -121,24 +194,24 @@
 							timestamps[which] = Date.now() - startTimes - timestamps[which ^ 1];
 						}
 						printTime()
-						let bbox = svg.getBBox(),
+						let bbox = g.getBBox(),
 							max = Math.max(bbox.height, bbox.width),
 							min = Math.min(bbox.height, bbox.width),
-							bbox2 = svg2.getBBox(),
+							bbox2 = g2.getBBox(),
 							max2 = Math.max(bbox2.height, bbox2.width),
 							min2 = Math.min(bbox2.height, bbox2.width);
-						svg.setAttribute("viewBox", `0 0 ${max} ${max}`)
-						svg2.setAttribute("viewBox", `0 0 ${max2} ${max2}`)
-						out.setAttribute("y", max/2)
-						out2.setAttribute("y", max2/2)
+						svg.setAttribute("viewBox", `${bbox.x + bbox.width/2 - max/2} ${bbox.y + bbox.height/2 - max/2} ${max} ${max}`)
+						svg2.setAttribute("viewBox", `${bbox2.x + bbox2.width/2 - max2/2} ${bbox2.y + bbox2.height/2 - max2/2} ${max2} ${max2}`)
 						if(running)requestAnimationFrame(loop)
 					},
 					switchPlayer = () => {
-						startTimes += delay - delays[which];
+						timestamps[which] -= increment;
+						startTimes += delay - delays[which] + increment;
 						which ^= 1;  // Switch player
 						isDelaying = true; // Set delay flag to true
 						delayStartTime = Date.now(); // Record when the delay starts
 						delays = [delay, delay];
+						boop.play()
 					},
 					docClick = (e) => {
 						switchPlayer()
@@ -158,27 +231,27 @@
 
 				time_1.appendChild(svg)
 				time_2.appendChild(svg2)
+				svg.append(g)
+				svg2.append(g2)
+				g.append(out)
+				g2.append(out2)
 				
 				function LR(){
 					// svg.setAttribute("style", "height: min(100vw, 100vh); width: min(100vw, 100vh)")
 					// svg2.setAttribute("style", "height: min(100vw, 100vh); width: min(100vw, 100vh)")
-					out.innerHTML = out2.innerHTML = "0m 00s 000ms";
+					out.innerHTML = out2.innerHTML = formatText.format(control, delay);
 					// out.setAttribute("dominant-baseline", "top")
 					// out2.setAttribute("dominant-baseline", "top")
-					svg.append(out)
-					svg2.append(out2)
-					out.setAttribute("style", "transform-origin: center; transform: rotate(90deg);")
-					out2.setAttribute("style", "transform-origin: center; transform: rotate(270deg);")
-					let bbox = svg.getBBox(),
+					let bbox = g.getBBox(),
 						max = Math.max(bbox.height, bbox.width),
 						min = Math.min(bbox.height, bbox.width),
-						bbox2 = svg2.getBBox(),
+						bbox2 = g2.getBBox(),
 						max2 = Math.max(bbox2.height, bbox2.width),
 						min2 = Math.min(bbox2.height, bbox2.width);
-					svg.setAttribute("viewBox", `0 0 ${max} ${max}`)
-					svg2.setAttribute("viewBox", `0 0 ${max2} ${max2}`)
-					out.setAttribute("y", max/2)
-					out2.setAttribute("y", max2/2)
+					svg.setAttribute("viewBox", `${bbox.x + bbox.width/2 - max/2} ${bbox.y + bbox.height/2 - max/2} ${max} ${max}`)
+					svg2.setAttribute("viewBox", `${bbox2.x + bbox2.width/2 - max2/2} ${bbox2.y + bbox2.height/2 - max2/2} ${max2} ${max2}`)
+					out.setAttribute("style", "transform-origin: center; transform: rotate(0deg);")
+					out2.setAttribute("style", "transform-origin: center; transform: rotate(0deg);")
 				}
 				LR()
 				$id("start-button").addEventListener("mouseup", (e) => {
@@ -194,10 +267,12 @@
 	<body>
 		<div id="container">
 			<div class="times">
-				<div class="time-1"></div>
-				<div class="time-2"></div>
+				<div class="time-1 white"></div>
+				<div class="middle">
+					<button id="start-button">START</button>
+				</div>
+				<div class="time-2 black"></div>
 			</div>
-			<button id="start-button">START</button>
 		</div>
 	</body>
 </html>
